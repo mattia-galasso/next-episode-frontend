@@ -1,16 +1,34 @@
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useNavigate } from "react-router";
+import { useState } from "react";
+import { useSearch } from "../contexts/SearchContext";
 
 // NAVBAR CSS
-import '../assets/css/navbar.css'
+import "../assets/css/navbar.css";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+  const { setSearch } = useSearch();
+  const [searchInput, setSearchInput] = useState("");
+
+  function handleSearch(e) {
+    e.preventDefault();
+    const value = searchInput.trim();
+    if (!value) return;
+    setSearch(value);
+    navigate(`/tvseries?search=${encodeURIComponent(value)}`);
+  }
+
+  function handleChange(e) {
+    setSearchInput(e.target.value);
+  }
+
   return (
     <nav className="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
       <div className="container-fluid">
         {/* Logo */}
         <Link to="/" className="navbar-brand">
           <img
-            src="./logo_nextepisode.png"
+            src="/logo_nextepisode.png"
             alt="NextEpisode Logo"
             className="navbar-logo"
           />
@@ -41,14 +59,8 @@ export default function Navbar() {
               </li>
 
               <li className="nav-item">
-                <NavLink to="/serie-tv" className="nav-link">
+                <NavLink to="/tvseries" className="nav-link">
                   Serie TV
-                </NavLink>
-              </li>
-
-              <li className="nav-item">
-                <NavLink to="/attori" className="nav-link">
-                  Attori
                 </NavLink>
               </li>
             </ul>
@@ -56,7 +68,10 @@ export default function Navbar() {
 
           {/* Azioni */}
           <div className="navbar-search-container">
-            <form className="my-3 my-lg-0 w-100 search-box">
+            <form
+              className="my-3 my-lg-0 w-100 search-box"
+              onSubmit={handleSearch}
+            >
               <div className="navbar-search-wrapper ">
                 <i className="bi bi-search navbar-search-icon"></i>
 
@@ -65,10 +80,10 @@ export default function Navbar() {
                   name="search-navbar"
                   type="search"
                   className="form-control navbar-search"
-                  placeholder="Cerca serie TV, attori, generi..."
+                  placeholder="Cerca serie TV..."
+                  value={searchInput}
+                  onChange={handleChange}
                 />
-
-                {/* TODO: Gestione ricerca */}
               </div>
             </form>
           </div>

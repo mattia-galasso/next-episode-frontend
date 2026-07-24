@@ -8,7 +8,7 @@ import "../assets/css/tvseries.css";
 import TvSeriesCard from "../components/TvSeriesCard";
 
 export default function TvSeriesPage() {
-  const [tvSeries, setTvSeries] = useState(null);
+  const [tvSeries, setTvSeries] = useState();
   const [platformList, setPlatformList] = useState([]);
   const [genreList, setGenreList] = useState([]);
 
@@ -18,53 +18,120 @@ export default function TvSeriesPage() {
   const order = searchParams.get("order") || "";
   const status = searchParams.get("status") || "";
   const newReleases = searchParams.get("newReleases") === "true";
-  const platforms = searchParams.get("platforms")
-    ? searchParams.get("platforms").split(",")
-    : [];
 
-  const genres = searchParams.get("genres")
-    ? searchParams.get("genres").split(",")
-    : [];
+  const platforms = searchParams.getAll("platforms[]");
+  const genres = searchParams.getAll("genres[]");
 
+  // PAGINAZIONE
+  const page = searchParams.get("page") || 1;
+
+  // SEARCH
+  const search = searchParams.get("search") || "";
+
+  // Const Labels
+  const statusLabel =
+    status === "ongoing"
+      ? "In corso"
+      : status === "ended"
+        ? "Concluse"
+        : "Stato";
+
+  const orderLabel =
+    order === "az"
+      ? "A-Z"
+      : order === "za"
+        ? "Z-A"
+        : order === "recent"
+          ? "Più recenti"
+          : order === "old"
+            ? "Meno recenti"
+            : "Ordinamento";
+
+  const platformLabel =
+    platforms.length > 0 ? `Piattaforme (${platforms.length})` : "Piattaforme";
+
+  const genreLabel = genres.length > 0 ? `Generi (${genres.length})` : "Generi";
+
+  // Const x button azzera filtri
+  const hasFilters =
+    search ||
+    order ||
+    status ||
+    newReleases ||
+    platforms.length > 0 ||
+    genres.length > 0;
+
+  /**
+   * Aggiorna il valore di una Query Param.
+   *
+   * @param {string} key Chiave del parametro (es. "status", "order").
+   * @param {string} value Valore da assegnare al parametro.
+   */
   function updateSearchParam(key, value) {
-    const params = new URLSearchParams(searchParams);
+    setSearchParams((searchParams) => {
+      searchParams.set(key, value);
+      searchParams.set("page", 1);
 
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-
-    setSearchParams(params);
+      return searchParams;
+    });
   }
 
+  /**
+   * Attiva o disattiva una Query Param booleana.
+   * Se il parametro esiste lo rimuove, altrimenti lo imposta a "true".
+   *
+   * @param {string} key Chiave del parametro (es. "newReleases").
+   */
+  function toggleSearchParam(key) {
+    setSearchParams((searchParams) => {
+      if (searchParams.has(key)) {
+        searchParams.delete(key);
+      } else {
+        searchParams.set(key, "true");
+      }
+
+      searchParams.set("page", 1);
+
+      return searchParams;
+    });
+  }
+
+  /**
+   * Aggiorna un filtro con selezione multipla (piattaforme o generi).
+   * Se il valore è già presente lo rimuove, altrimenti lo aggiunge.
+   *
+   * @param {string} key Chiave del parametro (es. "platforms", "genres").
+   * @param {string} value Valore da aggiungere o rimuovere.
+   */
   function updateMultiSearchParam(key, value) {
-    const params = new URLSearchParams(searchParams);
+    setSearchParams((searchParams) => {
+      if (searchParams.has(key, value)) {
+        searchParams.delete(key, value);
+      } else {
+        searchParams.append(key, value);
+      }
 
-    const currentValues = params.get(key);
-    const values = currentValues ? currentValues.split(",") : [];
+      searchParams.set("page", 1);
 
-
-    if (values.includes(value)) {
-      const index = values.indexOf(value);
-      values.splice(index, 1);
-    } else {
-      values.push(value);
-    }
-
-    if (values.length > 0) {
-      params.set(key, values.join(","));
-    } else {
-      params.delete(key);
-    }
-
-    setSearchParams(params);
+      return searchParams;
+    });
   }
 
+  function updatePage(page) {
+    setSearchParams((searchParams) => {
+      searchParams.set("page", page);
+
+      return searchParams;
+    });
+  }
+
+  //Lista Serie TV
   function getTvSeries() {
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/tvseries`, {
         params: {
+          page,
+          search,
           order,
           status,
           newReleases,
@@ -80,19 +147,11 @@ export default function TvSeriesPage() {
       });
   }
 
+  // Lista Piattaforme x Filtro
   function getPlatforms() {
-     console.log("Richiesta:", {
-    order,
-    status,
-    newReleases,
-    platforms,
-    genres,
-    });
-    
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/platforms`)
       .then((res) => {
-        console.log("Risposta:", res.data.results.total);
         setPlatformList(res.data.results);
       })
       .catch((err) => {
@@ -100,6 +159,7 @@ export default function TvSeriesPage() {
       });
   }
 
+  // Lista Generi x Filtro
   function getGenres() {
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/genres`)
@@ -112,9 +172,16 @@ export default function TvSeriesPage() {
     getGenres();
   }, []);
 
-  useEffect(getTvSeries, [order, status, newReleases, platforms, genres]);
+  useEffect(getTvSeries, [searchParams]);
 
-  if (!tvSeries) return null;
+  if (!tvSeries) return;
+
+  // PAGINAZIONE
+  const pages = [];
+
+  for (let i = 1; i <= tvSeries.last_page; i++) {
+    pages.push(i);
+  }
 
   return (
     <>
@@ -124,7 +191,9 @@ export default function TvSeriesPage() {
 
           <div className="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-4">
             <div>
-              <h1 className="mb-1">Serie TV</h1>
+              <h1 className="mb-1">
+                {search ? `Risultati per "${search}"` : "Serie TV"}
+              </h1>
 
               <p className="text-secondary mb-0">{tvSeries.total} risultati</p>
             </div>
@@ -136,9 +205,7 @@ export default function TvSeriesPage() {
             {/* NUOVE USCITE */}
             <button
               className={`btn ${newReleases ? "btn-light text-dark" : "btn-outline-light"}`}
-              onClick={() =>
-                updateSearchParam("newReleases", !newReleases ? "true" : "")
-              }
+              onClick={() => toggleSearchParam("newReleases")}
             >
               Nuove uscite
             </button>
@@ -150,7 +217,7 @@ export default function TvSeriesPage() {
                 type="button"
                 data-bs-toggle="dropdown"
               >
-                Ordinamento
+                {orderLabel}
               </button>
 
               <ul className="dropdown-menu dropdown-menu-dark">
@@ -203,7 +270,7 @@ export default function TvSeriesPage() {
                 type="button"
                 data-bs-toggle="dropdown"
               >
-                Stato
+                {statusLabel}
               </button>
 
               <div className="dropdown-menu dropdown-menu-dark p-3">
@@ -262,7 +329,7 @@ export default function TvSeriesPage() {
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"
               >
-                Piattaforme
+                {platformLabel}
               </button>
 
               <div className="dropdown-menu dropdown-menu-dark p-3 filter-dropdown">
@@ -273,7 +340,10 @@ export default function TvSeriesPage() {
                       type="button"
                       className={`btn btn-sm ${platforms.includes(String(platform.id)) ? "btn-light text-dark" : "btn-outline-secondary"}`}
                       onClick={() =>
-                        updateMultiSearchParam("platforms", String(platform.id))
+                        updateMultiSearchParam(
+                          "platforms[]",
+                          String(platform.id),
+                        )
                       }
                     >
                       {platform.name}
@@ -291,7 +361,7 @@ export default function TvSeriesPage() {
                 data-bs-toggle="dropdown"
                 data-bs-auto-close="outside"
               >
-                Generi
+                {genreLabel}
               </button>
 
               <div className="dropdown-menu dropdown-menu-dark p-3 filter-dropdown">
@@ -302,7 +372,7 @@ export default function TvSeriesPage() {
                       type="button"
                       className={`btn btn-sm ${genres.includes(String(genre.id)) ? "btn-light text-dark" : "btn-outline-secondary"}`}
                       onClick={() =>
-                        updateMultiSearchParam("genres", String(genre.id))
+                        updateMultiSearchParam("genres[]", String(genre.id))
                       }
                     >
                       {genre.name}
@@ -311,24 +381,70 @@ export default function TvSeriesPage() {
                 </div>
               </div>
             </div>
+            {hasFilters && (
+              <button
+                className="btn btn-outline-danger"
+                onClick={() => {
+                  setSearchParams({});
+                  setSearch("");
+                }}
+              >
+                <i className="bi bi-x-circle me-2"></i>
+                Azzera filtri
+              </button>
+            )}
           </div>
 
           {/* CARDS */}
 
-          <div className="row g-4">
-            {tvSeries.data.map((tvSeries) => (
-              <div
-                key={tvSeries.id}
-                className="col-6 col-md-4 col-lg-3 col-xl-2"
+          {tvSeries.data.length > 0 ? (
+            <div className="row g-4">
+              {tvSeries.data.map((tvSeries) => (
+                <div
+                  key={tvSeries.id}
+                  className="col-6 col-md-4 col-lg-3 col-xl-2"
+                >
+                  <TvSeriesCard tvSeries={tvSeries} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-5">
+              <h3 className="mb-3">Nessuna serie TV trovata</h3>
+
+              <p className="text-secondary">
+                Prova a modificare o rimuovere alcuni filtri.
+              </p>
+
+              <button
+                className="btn btn-outline-light mt-2"
+                onClick={() => {
+                  setSearchParams({});
+                  setSearch("");
+                }}
               >
-                <TvSeriesCard tvSeries={tvSeries} />
-              </div>
-            ))}
-          </div>
+                Azzera filtri
+              </button>
+            </div>
+          )}
 
           {/* PAGINAZIONE */}
 
-          <div className="d-flex justify-content-center mt-5"></div>
+          <div className="d-flex justify-content-center mt-5 gap-2">
+            {pages.map((page) => (
+              <button
+                key={page}
+                className={`btn ${
+                  page === tvSeries.current_page
+                    ? "btn-light"
+                    : "btn-outline-light"
+                }`}
+                onClick={() => updatePage(page)}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
     </>

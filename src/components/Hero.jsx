@@ -60,7 +60,7 @@ export default function Hero() {
 
             <p>{truncateText(tvSeries.description, 350)}</p>
 
-            <Link to={`/serie-tv/${tvSeries.slug}`} className="btn btn-primary">
+            <Link to={`/tvseries/${tvSeries.slug}`} className="btn btn-primary">
               Scopri di più
             </Link>
           </div>

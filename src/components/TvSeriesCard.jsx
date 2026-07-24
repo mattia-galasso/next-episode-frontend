@@ -11,7 +11,7 @@ export default function TvSeriesCard({ tvSeries }) {
 
   return (
     <Link
-      to={`/serie-tv/${tvSeries.slug}`}
+      to={`/tvseries/${tvSeries.slug}`}
       className="tv-series-card text-decoration-none"
     >
       <div className="tv-series-card-image">
