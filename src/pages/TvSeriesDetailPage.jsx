@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import axios from "axios";
+import { useLoading } from "../contexts/LoadingContext";
+import { useNotification } from "../contexts/NotificationContext";
 
+/* DETAIL CSS */
 import "../assets/css/detail.css";
 
 export default function TvSeriesDetailPage() {
   const { slug } = useParams();
-
   const [tvSeries, setTvSeries] = useState(null);
+  const {showLoading, hideLoading} = useLoading();
+  const { showNotification } = useNotification();
 
   useEffect(() => {
+    showLoading();
+
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/tvseries/${slug}`)
       .then((res) => {
@@ -17,7 +23,9 @@ export default function TvSeriesDetailPage() {
       })
       .catch((err) => {
         console.error(err);
-      });
+        showNotification("Impossibile recuperare la Hero.", "danger");
+      })
+      .finally(() => hideLoading());
   }, [slug]);
 
   if (!tvSeries) return null;

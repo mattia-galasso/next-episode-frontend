@@ -113,8 +113,38 @@
 .homepage-divisor {
   height: 0.1rem;
   background-color: var(--border-color);
-  margin: 0.1rem 0 1.2rem 0;
+  margin: 0.5rem 0 1.2rem 0;
 }
+
+.section-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .40rem .9rem;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 20px;
+    background: rgba(255,255,255,.03);
+    color: #fff;
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 600;
+    transition: .25s;
+}
+
+.section-link:hover {
+    background: rgba(255,255,255,.08);
+    border-color: rgba(255,255,255,.18);
+    transform: translateY(-2px);
+}
+
+.section-link i{
+    transition:.25s;
+}
+
+.section-link:hover i{
+    transform:translateX(4px);
+}
+
 
 /* 
   ! TV Series Card

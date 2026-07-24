@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import axios from "axios";
+import { useLoading } from "../contexts/LoadingContext";
+import { useNotification } from "../contexts/NotificationContext";
+
 
 import "../assets/css/actor-detail.css";
 
 export default function ActorDetailPage() {
   const { slug } = useParams();
-
   const [actor, setActor] = useState(null);
+  const {showLoading, hideLoading} = useLoading();
+  const {showNotification} = useNotification();
 
   useEffect(() => {
+    showLoading();
+
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/actors/${slug}`)
       .then((res) => {
@@ -17,7 +23,9 @@ export default function ActorDetailPage() {
       })
       .catch((err) => {
         console.error(err);
-      });
+        showNotification("Impossibile recuperare informazioni Attore.", "danger");
+      })
+      .finally(() => hideLoading());
   }, [slug]);
 
   if (!actor) return null;

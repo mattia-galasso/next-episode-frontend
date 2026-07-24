@@ -1,19 +1,24 @@
 import { Link } from "react-router";
-
-import bannerPlaceholder from "../assets/img/banner_no_image_available.png";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useLoading } from "../contexts/LoadingContext";
+
+import bannerPlaceholder from "../assets/img/banner_no_image_available.png";
 
 export default function Hero() {
   const [tvSeries, setTvSeries] = useState();
+  const { showLoading, hideLoading } = useLoading();
 
   function hero() {
+    showLoading();
+    
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/tvseries/homepage?section=hero`)
       .then((res) => {
         setTvSeries(res.data.results);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => hideLoading());
   }
 
   useEffect(hero, []);
@@ -47,7 +52,8 @@ export default function Hero() {
         <div className="hero-content">
           <div className="hero-info">
             <span className="hero-year">
-              {tvSeries.start_year} • {tvSeries.end_year ? tvSeries.end_year : 'In Produzione'}
+              {tvSeries.start_year} •{" "}
+              {tvSeries.end_year ? tvSeries.end_year : "In Produzione"}
             </span>
 
             <h1>{tvSeries.title}</h1>

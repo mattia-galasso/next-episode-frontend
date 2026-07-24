@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
 import axios from "axios";
+import { useLoading } from "../contexts/LoadingContext";
+import { useNotification } from "../contexts/NotificationContext";
 
 // TVSERIES CSS
 import "../assets/css/tvseries.css";
@@ -11,6 +13,8 @@ export default function TvSeriesPage() {
   const [tvSeries, setTvSeries] = useState();
   const [platformList, setPlatformList] = useState([]);
   const [genreList, setGenreList] = useState([]);
+  const { showLoading, hideLoading } = useLoading();
+  const { showNotification } = useNotification();
 
   // Query Params
   const [searchParams, setSearchParams] = useSearchParams();
@@ -54,7 +58,12 @@ export default function TvSeriesPage() {
 
   // Const x button azzera filtri
   const hasFilters =
-   search || order || status || newReleases || platforms.length > 0 || genres.length > 0;
+    search ||
+    order ||
+    status ||
+    newReleases ||
+    platforms.length > 0 ||
+    genres.length > 0;
 
   /**
    * Aggiorna il valore di una Query Param.
@@ -122,6 +131,8 @@ export default function TvSeriesPage() {
 
   //Lista Serie TV
   function getTvSeries() {
+    showLoading();
+
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/tvseries`, {
         params: {
@@ -139,11 +150,15 @@ export default function TvSeriesPage() {
       })
       .catch((err) => {
         console.log(err.message);
-      });
+        showNotification("Impossibile recuperare le Serie Tv.", "danger");
+      })
+      .finally(() => hideLoading());
   }
 
   // Lista Piattaforme x Filtro
   function getPlatforms() {
+    showLoading();
+
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/platforms`)
       .then((res) => {
@@ -151,15 +166,27 @@ export default function TvSeriesPage() {
       })
       .catch((err) => {
         console.log(err.message);
-      });
+        showNotification("Impossibile recuperare le Piattaforme.", "danger");
+      })
+      .finally(() => hideLoading());
   }
 
   // Lista Generi x Filtro
   function getGenres() {
+    showLoading();
+
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/genres`)
-      .then((res) => setGenreList(res.data.results))
-      .catch((err) => console.log(err.message));
+      .then((res) => {
+        setGenreList(res.data.results);
+      })
+      .catch((err) => {
+        console.log(err.message);
+        showNotification("Impossibile recuperare i Generi.", "danger");
+      })
+      .finally(() => {
+        hideLoading();
+      });
   }
 
   useEffect(() => {
@@ -216,27 +243,30 @@ export default function TvSeriesPage() {
               </button>
 
               <ul className="dropdown-menu dropdown-menu-dark">
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => updateSearchParam("order", "az")}
-                  >
-                    Dalla A alla Z
-                  </button>
-                </li>
+                {!search && (
+                  <>
+                    <li>
+                      <button
+                        className="dropdown-item"
+                        onClick={() => updateSearchParam("order", "az")}
+                      >
+                        Dalla A alla Z
+                      </button>
+                    </li>
 
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => updateSearchParam("order", "za")}
-                  >
-                    Dalla Z alla A
-                  </button>
-                </li>
-
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
+                    <li>
+                      <button
+                        className="dropdown-item"
+                        onClick={() => updateSearchParam("order", "za")}
+                      >
+                        Dalla Z alla A
+                      </button>
+                    </li>
+                    <li>
+                      <hr className="dropdown-divider" />
+                    </li>
+                  </>
+                )}
 
                 <li>
                   <button
