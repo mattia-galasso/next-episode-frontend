@@ -54,12 +54,7 @@ export default function TvSeriesPage() {
 
   // Const x button azzera filtri
   const hasFilters =
-    search ||
-    order ||
-    status ||
-    newReleases ||
-    platforms.length > 0 ||
-    genres.length > 0;
+   search || order || status || newReleases || platforms.length > 0 || genres.length > 0;
 
   /**
    * Aggiorna il valore di una Query Param.
@@ -384,10 +379,7 @@ export default function TvSeriesPage() {
             {hasFilters && (
               <button
                 className="btn btn-outline-danger"
-                onClick={() => {
-                  setSearchParams({});
-                  setSearch("");
-                }}
+                onClick={() => setSearchParams({})}
               >
                 <i className="bi bi-x-circle me-2"></i>
                 Azzera filtri
@@ -418,10 +410,7 @@ export default function TvSeriesPage() {
 
               <button
                 className="btn btn-outline-light mt-2"
-                onClick={() => {
-                  setSearchParams({});
-                  setSearch("");
-                }}
+                onClick={() => setSearchParams({})}
               >
                 Azzera filtri
               </button>

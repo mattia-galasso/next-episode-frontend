@@ -15,14 +15,12 @@ import { LoadingProvider } from "./contexts/LoadingContext";
 
 /* Notification Context */
 import { NotificationProvider } from "./contexts/NotificationContext";
-import { SearchProvider } from "./contexts/SearchContext";
 
 export default function App() {
   return (
     <>
       <LoadingProvider>
         <NotificationProvider>
-          <SearchProvider>
             <BrowserRouter>
               <Routes>
                 <Route Component={DefaultLayout}>
@@ -37,7 +35,6 @@ export default function App() {
                 </Route>
               </Routes>
             </BrowserRouter>
-          </SearchProvider>
         </NotificationProvider>
       </LoadingProvider>
     </>

@@ -1,21 +1,19 @@
 import { Link, NavLink, useNavigate } from "react-router";
 import { useState } from "react";
-import { useSearch } from "../contexts/SearchContext";
-
 // NAVBAR CSS
 import "../assets/css/navbar.css";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const { setSearch } = useSearch();
   const [searchInput, setSearchInput] = useState("");
 
   function handleSearch(e) {
     e.preventDefault();
     const value = searchInput.trim();
     if (!value) return;
-    setSearch(value);
+    
     navigate(`/tvseries?search=${encodeURIComponent(value)}`);
+    setSearchInput("");
   }
 
   function handleChange(e) {
