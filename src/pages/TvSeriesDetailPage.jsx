@@ -10,8 +10,9 @@ import "../assets/css/detail.css";
 export default function TvSeriesDetailPage() {
   const { slug } = useParams();
   const [tvSeries, setTvSeries] = useState(null);
-  const {showLoading, hideLoading} = useLoading();
+  const { showLoading, hideLoading } = useLoading();
   const { showNotification } = useNotification();
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     showLoading();
@@ -65,12 +66,14 @@ export default function TvSeriesDetailPage() {
             <div className="container pt-5">
               <div className="row align-items-center g-5">
                 {/* Poster */}
-
                 <div className="col-lg-3">
+                  {!loaded && <div className="poster-skeleton" />}
+                  
                   <img
-                    src={posterUrl}
-                    alt={imageAltText}
-                    className="img-fluid shadow poster"
+                    src={posterUrl || posterPlaceholder}
+                    alt={tvSeries.title}
+                    onLoad={() => setLoaded(true)}
+                    className={loaded ? "poster loaded" : "poster"}
                   />
                 </div>
 
