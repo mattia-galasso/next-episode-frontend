@@ -1,8 +1,11 @@
 import { Link } from "react-router";
+import { useState } from "react";
 
 import posterPlaceholder from "../assets/img/no_image_available.png";
 
 export default function TvSeriesCard({ tvSeries }) {
+  const [loaded, setLoaded] = useState(false);
+
   let posterUrl = tvSeries.poster
     ? `${import.meta.env.VITE_API_URL}/storage/${tvSeries.poster}`
     : posterPlaceholder;
@@ -15,7 +18,14 @@ export default function TvSeriesCard({ tvSeries }) {
       className="tv-series-card text-decoration-none"
     >
       <div className="tv-series-card-image">
-        <img src={posterUrl} alt={imageAltText} />
+        {!loaded && <div className="poster-skeleton" />}
+
+        <img
+          src={posterUrl}
+          alt={imageAltText}
+          onLoad={() => setLoaded(true)}
+          className={loaded ? "poster loaded" : "poster"}
+        />
 
         <div className="tv-series-card-overlay">
           <span>Scopri di più</span>
@@ -26,7 +36,8 @@ export default function TvSeriesCard({ tvSeries }) {
         <h3>{tvSeries.title}</h3>
 
         <p>
-          {tvSeries.start_year} • {tvSeries.status === 'ongoing' ? 'In Produzione' : 'Terminata'}
+          {tvSeries.start_year} •{" "}
+          {tvSeries.status === "ongoing" ? "In Produzione" : "Terminata"}
         </p>
       </div>
     </Link>

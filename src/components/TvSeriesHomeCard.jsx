@@ -1,16 +1,19 @@
 import { Link } from "react-router";
 
 import posterPlaceholder from "../assets/img/no_image_available.png";
+import { useState } from "react";
 
 export default function TvSeriesHomeCard({ tvSeries }) {
+  const [loaded, setLoaded] = useState(false);
+
   let posterUrl = tvSeries.poster
     ? `${import.meta.env.VITE_API_URL}/storage/${tvSeries.poster}`
     : posterPlaceholder;
 
-  let imageAltText = tvSeries.title ? tvSeries.title : 'No image available'
+  let imageAltText = tvSeries.title ? tvSeries.title : "No image available";
 
-    // Funzione per troncare il titolo troppo lungo
-    function truncateTitle(title, maxLength = 28) {
+  // Funzione per troncare il titolo troppo lungo
+  function truncateTitle(title, maxLength = 28) {
     if (title.length <= maxLength) {
       return title;
     }
@@ -24,12 +27,21 @@ export default function TvSeriesHomeCard({ tvSeries }) {
         className="tv-series-home-card text-decoration-none"
       >
         <div className="tv-series-home-card-image">
-          <img src={posterUrl || posterPlaceholder} alt={tvSeries.title} />
+          {!loaded && <div className="poster-skeleton" />}
 
-          <div className="tv-series-home-card-content">
-            <h3>{truncateTitle(tvSeries.title)}</h3>
-            <span>{tvSeries.start_year}</span>
-          </div>
+          <img
+            src={posterUrl || posterPlaceholder}
+            alt={tvSeries.title}
+            onLoad={() => setLoaded(true)}
+            className={loaded ? "poster loaded" : "poster"}
+          />
+
+          {loaded && (
+            <div className="tv-series-home-card-content">
+              <h3>{truncateTitle(tvSeries.title)}</h3>
+              <span>{tvSeries.start_year}</span>
+            </div>
+          )}
         </div>
       </Link>
     </>

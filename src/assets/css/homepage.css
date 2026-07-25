@@ -23,6 +23,8 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .hero-overlay {
@@ -117,34 +119,33 @@
 }
 
 .section-link {
-    display: inline-flex;
-    align-items: center;
-    gap: .45rem;
-    padding: .40rem .9rem;
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 20px;
-    background: rgba(255,255,255,.03);
-    color: #fff;
-    text-decoration: none;
-    font-size: .9rem;
-    font-weight: 600;
-    transition: .25s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: 0.25s;
 }
 
 .section-link:hover {
-    background: rgba(255,255,255,.08);
-    border-color: rgba(255,255,255,.18);
-    transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
 }
 
-.section-link i{
-    transition:.25s;
+.section-link i {
+  transition: 0.25s;
 }
 
-.section-link:hover i{
-    transform:translateX(4px);
+.section-link:hover i {
+  transform: translateX(4px);
 }
-
 
 /* 
   ! TV Series Card
@@ -193,7 +194,6 @@
     rgba(15, 17, 23, 0.75) 55%,
     transparent 100%
   );
-
   opacity: 0.9;
   transition:
     height 0.25s ease,
@@ -226,6 +226,50 @@
   color: var(--text-secondary);
 }
 
+/* SKELETON */
+.hero-banner.loaded {
+  opacity: 1;
+}
+
+.hero-banner-skeleton {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #232938 25%, #353d50 50%, #232938 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s linear infinite;
+}
+
+.poster-skeleton {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #232938 25%, #353d50 50%, #232938 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s linear infinite;
+}
+
+.poster {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.poster.loaded {
+  opacity: 1;
+}
+
+/* ANIMATION */
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
 /* 
   ! MEDIA QUERY
 */
@@ -249,7 +293,6 @@
     font-size: 2rem;
     line-height: 1.1;
   }
-
 }
 
 /* 

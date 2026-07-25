@@ -7,11 +7,12 @@ import bannerPlaceholder from "../assets/img/banner_no_image_available.png";
 
 export default function Hero() {
   const [tvSeries, setTvSeries] = useState();
+  const [bannerLoaded, setBannerLoaded] = useState(false);
   const { showLoading, hideLoading } = useLoading();
 
   function hero() {
     showLoading();
-    
+
     axios
       .get(`${import.meta.env.VITE_API_URL}/api/tvseries/homepage?section=hero`)
       .then((res) => {
@@ -45,30 +46,46 @@ export default function Hero() {
   return (
     <>
       <section className="hero">
-        <img src={bannerUrl} alt={imageAltText} className="hero-banner" />
+        {!bannerLoaded && (
+          <div className="hero-banner-skeleton"></div>
+        )}
+
+        <img
+          src={bannerUrl}
+          alt={imageAltText}
+          className={`hero-banner ${bannerLoaded ? "loaded" : ""}`}
+          onLoad={() => setBannerLoaded(true)}
+        />
 
         <div className="hero-overlay"></div>
 
         <div className="hero-content">
           <div className="hero-info">
-            <span className="hero-year">
-              {tvSeries.start_year} •{" "}
-              {tvSeries.end_year ? tvSeries.end_year : "In Produzione"}
-            </span>
+            {bannerLoaded && (
+              <>
+                <span className="hero-year">
+                  {tvSeries.start_year} •{" "}
+                  {tvSeries.end_year ? tvSeries.end_year : "In Produzione"}
+                </span>
 
-            <h1>{tvSeries.title}</h1>
+                <h1>{tvSeries.title}</h1>
 
-            <div className="hero-genres">
-              {tvSeries.genres.map((genre) => (
-                <span key={genre.id}>{genre.name}</span>
-              ))}
-            </div>
+                <div className="hero-genres">
+                  {tvSeries.genres.map((genre) => (
+                    <span key={genre.id}>{genre.name}</span>
+                  ))}
+                </div>
 
-            <p>{truncateText(tvSeries.description, 350)}</p>
+                <p>{truncateText(tvSeries.description, 350)}</p>
 
-            <Link to={`/tvseries/${tvSeries.slug}`} className="btn btn-primary">
-              Scopri di più
-            </Link>
+                <Link
+                  to={`/tvseries/${tvSeries.slug}`}
+                  className="btn btn-primary"
+                >
+                  Scopri di più
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
